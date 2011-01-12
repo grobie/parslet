@@ -14,20 +14,6 @@ class Parslet::Atoms::Lookahead < Parslet::Atoms::Base
     @bound_parslet = bound_parslet
   end
   
-  def try(io) # :nodoc:
-    pos = io.pos
-
-    failed = true
-    catch(:error) {
-      bound_parslet.apply(io)
-      failed = false
-    }
-    return failed ? fail(io) : success(io)
-
-  ensure 
-    io.pos = pos
-  end
-  
   # TODO Both of these will produce results that could be reduced easily. 
   # Maybe do some shortcut reducing here?
   def fail(io) # :nodoc:

@@ -7,31 +7,11 @@
 #   str('a').maybe        # matches 'a' if it is present in the input (repeat(0,1))
 #
 class Parslet::Atoms::Repetition < Parslet::Atoms::Base  
-  attr_reader :min, :max, :parslet
+  attr_reader :min, :max, :parslet, :tag
   def initialize(parslet, min, max, tag=:repetition)
     @parslet = parslet
     @min, @max = min, max
     @tag = tag
-  end
-  
-  def try(io) # :nodoc:
-    occ = 0
-    result = [@tag]   # initialize the result array with the tag (for flattening)
-    catch(:error) {
-      result << parslet.apply(io)
-      occ += 1
-      
-      # If we're not greedy (max is defined), check if that has been 
-      # reached. 
-      return result if max && occ>=max
-      redo
-    }
-    
-    # Greedy matcher has produced a failure. Check if occ (which will
-    # contain the number of sucesses) is in {min, max}.
-    # p [:repetition, occ, min, max]
-    error(io, "Expected at least #{min} of #{parslet.inspect}") if occ < min
-    return result
   end
   
   precedence REPETITION

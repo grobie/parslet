@@ -12,7 +12,10 @@ describe Parslet do
   extend Parslet
 
   def gio(str)
-    StringIO.new(str)
+    io = StringIO.new(str)
+    interpreter = Parslet::Interpreter.new(io)
+    
+    [io, interpreter]
   end
   
   describe "match('[abc]')" do
@@ -92,8 +95,8 @@ describe Parslet do
       parslet.parse('foo')
     end
     it "should leave pos untouched if there is no foo" do
-      io = gio('bar')
-      parslet.apply(io)
+      io, interpreter = gio('bar')
+      parslet.apply(io, interpreter)
       io.pos.should == 0
     end
     it "should inspect as 'foo'?" do
@@ -185,11 +188,11 @@ describe Parslet do
     end 
     context "when fed 'foo'" do
       it "should parse" do
-        parslet.apply(gio('foo'))
+        parslet.apply(*gio('foo'))
       end
       it "should not change input position" do
-        io = gio('foo')
-        parslet.apply(io)
+        io, interpreter = gio('foo')
+        parslet.apply(io, interpreter)
         io.pos.should == 0
       end
     end
@@ -197,10 +200,17 @@ describe Parslet do
       it "should not parse" do
         lambda { parslet.parse('bar') }.should not_parse
       end
+      it "should not change input position" do
+        io, interpreter = gio('bar')
+        catch(:error) {
+          parslet.apply(io, interpreter)
+        }
+        io.pos.should == 0
+      end
     end
     describe "<- #parse" do
       it "should return nil" do
-        parslet.apply(gio 'foo').should == nil
+        parslet.apply(*gio('foo')).should == nil
       end 
     end
   end
@@ -215,11 +225,11 @@ describe Parslet do
     end 
     context "when fed 'bar'" do
       it "should parse" do
-        parslet.apply(gio 'bar')
+        parslet.apply(*gio('bar'))
       end
       it "should not change input position" do
-        io = gio('bar')
-        parslet.apply(io)
+        io, interpreter = gio('bar')
+        parslet.apply(io, interpreter)
         io.pos.should == 0
       end
     end
@@ -256,8 +266,8 @@ describe Parslet do
       parslet.parse('.')
     end 
     it "should consume one char" do
-      io = gio('foo')
-      parslet.apply(io)
+      io, interpreter = gio('bar')
+      parslet.apply(io, interpreter)
       io.pos.should == 1
     end 
   end

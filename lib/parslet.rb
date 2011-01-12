@@ -230,6 +230,7 @@ module Parslet
 end
 
 require 'parslet/error_tree'
+require 'parslet/interpreter'
 require 'parslet/atoms'
 require 'parslet/pattern'
 require 'parslet/pattern/binding'

@@ -11,8 +11,8 @@ class Parslet::Atoms::Named < Parslet::Atoms::Base
     @parslet, @name = parslet, name
   end
   
-  def apply(io) # :nodoc:
-    value = parslet.apply(io)
+  def apply(io, visitor) # :nodoc:
+    value = parslet.apply(io, visitor)
     
     produce_return_value value
   end

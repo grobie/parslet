@@ -13,9 +13,11 @@ class Parslet::Atoms::Base
       io = StringIO.new(io)
     end
     
+    visitor = Parslet::Interpreter.new(io)
+    
     result = nil
     error_message_or_success = catch(:error) {
-      result = apply(io)
+      result = apply(io, visitor)
       :success
     }
     
@@ -44,19 +46,23 @@ class Parslet::Atoms::Base
     
     return flatten(result)
   end
+  
+  def visit(visitor)
+    visitor.send(self.class.name.split('::').last.downcase, self)
+  end
 
   #---
   # Calls the #try method of this parslet. In case of a parse error, apply
   # leaves the io in the state it was before the attempt. 
   #+++
-  def apply(io) # :nodoc:
+  def apply(io, visitor) # :nodoc:
     # p [:start, self, io.string[io.pos, 10]]
     
     old_pos = io.pos
     
     # p [:try, self, io.string[io.pos, 20]]
     message = catch(:error) {
-      r = try(io)
+      r = self.visit(visitor)
       # p [:return_from, self, r, flatten(r)]
       
       # This has just succeeded, so last_cause must be empty
@@ -69,13 +75,6 @@ class Parslet::Atoms::Base
     
     io.pos = old_pos
     throw :error, message
-  end
-
-  # Override this in your Atoms::Base subclasses to implement parsing
-  # behaviour. 
-  #
-  def try(io)
-    raise NotImplementedError, "Atoms::Base doesn't have behaviour, please implement #try(io)."
   end
 
   # Construct a new atom that repeats the current atom min times at least and
@@ -263,7 +262,7 @@ class Parslet::Atoms::Base
   def cause? # :nodoc:
     not @last_cause.nil?
   end
-private
+
   # TODO comments!!!
   # Report/raise a parse error with the given message, printing the current
   # position as well. Appends 'at line X char Y.' to the message you give. 

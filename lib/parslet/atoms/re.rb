@@ -14,13 +14,6 @@ class Parslet::Atoms::Re < Parslet::Atoms::Base
     @re    = Regexp.new(match, Regexp::MULTILINE)
   end
 
-  def try(io) # :nodoc:
-    s = io.read(1)
-    error(io, "Premature end of input") unless s
-    error(io, "Failed to match #{match.inspect[1..-2]}") unless s.match(re)
-    return s
-  end
-
   def to_s_inner(prec) # :nodoc:
     match.inspect[1..-2]
   end

@@ -14,19 +14,7 @@ class Parslet::Atoms::Sequence < Parslet::Atoms::Base
     @parslets << parslet
     self
   end
-  
-  def try(io) # :nodoc:
-    catch(:error) {
-      return [:sequence]+parslets.map { |p| 
-        # Save each parslet as potentially offending (raising an error). 
-        @offending_parslet = p
-        p.apply(io) 
-      }
-    }
-
-    error(io, "Failed to match sequence (#{self.inspect})")
-  end
-      
+        
   precedence SEQUENCE
   def to_s_inner(prec) # :nodoc:
     parslets.map { |p| p.to_s(prec) }.join(' ')

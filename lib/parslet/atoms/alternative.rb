@@ -28,16 +28,6 @@ class Parslet::Atoms::Alternative < Parslet::Atoms::Base
     self
   end
   
-  def try(io) # :nodoc:
-    alternatives.each { |a|
-      catch(:error) {
-        return a.apply(io)
-      }
-    }
-    # If we reach this point, all alternatives have failed. 
-    error(io, "Expected one of #{alternatives.inspect}.")
-  end
-
   precedence ALTERNATE
   def to_s_inner(prec) # :nodoc:
     alternatives.map { |a| a.to_s(prec) }.join(' / ')

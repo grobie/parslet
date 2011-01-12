@@ -18,10 +18,6 @@ class Parslet::Atoms::Entity < Parslet::Atoms::Base
     @block = block
   end
 
-  def try(io) # :nodoc:
-    parslet.apply(io)
-  end
-  
   def parslet
     @parslet ||= context.instance_eval(&block).tap { |p| 
       raise_not_implemented unless p
